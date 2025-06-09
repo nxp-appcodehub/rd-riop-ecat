@@ -1,0 +1,28 @@
+//* Copyright 2025 NXP
+//*
+//* NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly
+//* in accordance with the applicable license terms.  By expressly accepting such terms or by downloading,
+//* installing, activating and/or otherwise using the software, you are agreeing that you have read,
+//* and that you agree to comply with and are bound by, such license terms.  If you do not agree to be bound by
+//* the applicable license terms, then you may not retain, install, activate or otherwise use the software.
+PROGRAM MAIN
+VAR
+	Delay: TON;
+	LedIn AT %I* : BOOL;
+	LedOut AT %Q* : BOOL;
+	// mode: 1 - AFE voltage measurement
+	a1o_mode AT %Q* : UDINT;
+	// voltage #ai1, single end, 2/J18
+	a5i AT %I* : REAL;
+	// voltage #ai2, single end, 3/J18
+	a6i AT %I* : REAL;
+END_VAR
+
+
+
+Delay(IN:=TRUE, PT:=T#1S);
+IF Delay.Q THEN
+	a1o_mode := 1;
+	LedOut:= NOT LedIn;
+	Delay(IN:=FALSE);
+END_IF;

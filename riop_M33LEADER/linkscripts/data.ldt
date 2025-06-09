@@ -1,0 +1,92 @@
+<#if memory.name=="SRAM_ITC_cm33">
+	*(.data.$${memory.alias})
+	*(.data.$${memory.name})
+	*(.data.$${memory.alias}.*)
+	*(.data.$${memory.name}.*)
+	
+	KEEP(*(CodeQuickAccess))
+	
+	*board.o*(*.text*)
+	*clock_config.o*(*.text*)
+
+	*ecat_hw.o*(*.text*)
+	*pin_mux.o*(*.text*)
+	*fsl_component_generic_list.o*(*.text*)
+	*fsl_phyvsc8541.o*(*.text*)
+	*fsl_component_serial_manager.o*(*.text*)
+	*fsl_component_serial_port_uart.o*(*.text*)
+	*fsl_silicon_id.o*(*.text*)
+	*fsl_silicon_id_soc.o*(*.text*)
+	*fsl_adapter_lpuart.o*(*.text*)
+
+/* 
+	*system_MIMXRT1189_cm33.o*(*.text*)
+*/
+	*fsl_cache.o*(*.text*)
+	*fsl_clock.o*(*.text*)
+	*fsl_common.o*(*.text*)
+	*fsl_common_arm.o*(*.text*)
+	*fsl_dcdc.o*(*.text*)
+	*fsl_ecat.o*(*.text*)
+
+	*fsl_ele_base_api.o*(*.text*)
+	*fsl_gpt.o*(*.text*)
+	*fsl_lpi2c.o*(*.text*)
+	*fsl_lpuart.o*(*.text*)
+	*fsl_msgintr.o*(*.text*)
+/*
+	*fsl_mu.o*(*.text*)
+*/
+	*fsl_netc_endpoint.o*(*.text*)
+	*fsl_netc_ierb.o*(*.text*)
+	*fsl_netc_mdio.o*(*.text*)
+	*fsl_netc_soc.o*(*.text*)
+	*fsl_netc_switch.o*(*.text*)
+	*fsl_netc_timer.o*(*.text*)
+	*fsl_pmu.o*(*.text*)
+
+	*fsl_rgpio.o*(*.text*)
+	*fsl_s3mu.o*(*.text*)
+	*fsl_xbar.o*(*.text*)
+	*fsl_netc_hw.o*(*.text*)
+	*fsl_netc_hw_enetc.o*(*.text*)
+	*fsl_netc_hw_port.o*(*.text*)
+	*fsl_netc_hw_si.o*(*.text*)
+
+/*
+	*mcmgr.o*(*.text*)
+*/
+	*mcmgr_internal_core_api_imxrt1180.o*(*.text*)
+	*mcmgr_mu_internal.o*(*.text*)
+	*llist.o*(*.text*)
+
+	*rpmsg_env_bm.o*(*.text*)
+	*rpmsg_platform.o*(*.text*)
+	*rpmsg_lite.o*(*.text*)
+	*rpmsg_ns.o*(*.text*)
+	*virtqueue.o*(*.text*)
+	*api_icc.o*(*.text*)
+
+	*digital_io.o*(*.text*)
+/*
+	*riop_M33LEADER.o*(*.text*)
+*/
+	*intercore_communication.o*(*.text*)
+	*semihost_hardfault.o*(*.text*)
+	*coeappl.o*(*.text*)
+	*ecatappl.o*(*.text*)
+	*ecatcoe.o*(*.text*)
+	*ecatslv.o*(*.text*)
+	*mailbox.o*(*.text*)
+	*objdef.o*(*.text*)
+	*sdoserv.o*(*.text*)
+	*boot_multicore_slave.o*(*.text*)
+	*startup_mimxrt1189_cm33.o*(*.text*)
+	*fsl_assert.o*(*.text*)
+	*fsl_debug_console.o*(*.text*)
+	*fsl_memcpy.o*(*.text*)
+	*fsl_str.o*(*.text*)
+	*evkmimxrt1180_flexspi_nor_config.o*(*.text*)
+	*fsl_flexspi_nor_boot.o*(*.text*)
+
+</#if>

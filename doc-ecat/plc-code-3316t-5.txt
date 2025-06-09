@@ -1,0 +1,63 @@
+//* Copyright 2025 NXP
+//*
+//* NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly
+//* in accordance with the applicable license terms.  By expressly accepting such terms or by downloading,
+//* installing, activating and/or otherwise using the software, you are agreeing that you have read,
+//* and that you agree to comply with and are bound by, such license terms.  If you do not agree to be bound by
+//* the applicable license terms, then you may not retain, install, activate or otherwise use the software.
+PROGRAM MAIN
+VAR
+	Delay: TON;
+	LedIn AT %I* : BOOL;
+	LedOut AT %Q* : BOOL;
+	// mode: 5 - MCU digital I/O's
+	a1o_mode AT %Q* : UDINT;
+	// digital input mcu#1,9/J11
+	d9i AT %I* : BOOL;
+	// digital input mcu#2,8/J11
+	d10i AT %I* : BOOL;
+	// digital input mcu#3,7/J11
+	d11i AT %I* : BOOL;
+	// digital input mcu#4,6/J11
+	d12i AT %I* : BOOL;
+	// digital input mcu#5,5/J11
+	d13i AT %I* : BOOL;
+	// digital input mcu#6,4/J11
+	d14i AT %I* : BOOL;
+	// digital input mcu#7,3/J11
+	d15i AT %I* : BOOL;
+	d17i AT %I* : BOOL;
+	// digital output mcu#1,9/J12
+	d17o AT %Q* : BOOL;
+	d18i AT %I* : BOOL;
+	// digital output mcu#2,8/J12
+	d18o AT %Q* : BOOL;
+	d19i AT %I* : BOOL;
+	// digital output mcu#3,7/J12
+	d19o AT %Q* : BOOL;
+	d20i AT %I* : BOOL;
+	// digital output mcu#4,6/J12
+	d20o AT %Q* : BOOL;
+	d21i AT %I* : BOOL;
+	// digital output mcu#5,5/J12
+	d21o AT %Q* : BOOL;
+	d22i AT %I* : BOOL;
+	// digital output mcu#6,4/J12
+	d22o AT %Q* : BOOL;
+	d23i AT %I* : BOOL;
+	// digital output mcu#7,3/J12
+	d23o AT %Q* : BOOL;
+	d24i AT %I* : BOOL;
+	// digital output mcu#8,2/J12
+	d24o AT %Q* : BOOL;
+END_VAR
+
+
+
+Delay(IN:=TRUE, PT:=T#1S);
+IF Delay.Q THEN
+	a1o_mode := 5;
+	LedOut:= NOT LedIn;
+	//d24o:= NOT d24i;
+	Delay(IN:=FALSE);
+END_IF;

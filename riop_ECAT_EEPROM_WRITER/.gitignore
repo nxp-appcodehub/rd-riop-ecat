@@ -1,0 +1,10 @@
+# ignore
+.settings/
+/Debug/*
+/Release/*
+*.ewt
+*.ewd
+
+# allow
+!/Debug/*.ld
+!/Release/*.ld

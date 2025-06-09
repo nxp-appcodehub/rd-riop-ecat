@@ -1,0 +1,73 @@
+//* Copyright 2025 NXP
+//*
+//* NXP Proprietary. This software is owned or controlled by NXP and may only be used strictly
+//* in accordance with the applicable license terms.  By expressly accepting such terms or by downloading,
+//* installing, activating and/or otherwise using the software, you are agreeing that you have read,
+//* and that you agree to comply with and are bound by, such license terms.  If you do not agree to be bound by
+//* the applicable license terms, then you may not retain, install, activate or otherwise use the software.
+PROGRAM MAIN
+VAR
+	Delay: TON;
+	LedIn AT %I* : BOOL;
+	LedOut AT %Q* : BOOL;
+	// mode: 4 - AFE digital I/O's
+	a1o_mode AT %Q* : UDINT;
+	// digital i/o afe#1,8/J19
+	d1i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d1o AT %Q* : BOOL;
+	// pin1 mode: FALSE - input; TRUE - output
+	d25o_d1mode AT %Q* : BOOL;
+	// digital i/o afe#2,7/J19
+	d2i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d2o AT %Q* : BOOL;
+	// pin2 mode: FALSE - input; TRUE - output
+	d26o_d2mode AT %Q* : BOOL;
+	// digital i/o afe#3,6/J19
+	d3i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d3o AT %Q* : BOOL;
+	// pin3 mode: FALSE - input; TRUE - output
+	d27o_d3mode AT %Q* : BOOL;
+	// digital i/o afe#4,5/J19
+	d4i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d4o AT %Q* : BOOL;
+	// pin4 mode: FALSE - input; TRUE - output
+	d28o_d4mode AT %Q* : BOOL;
+	// digital i/o afe#5,4/J19
+	d5i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d5o AT %Q* : BOOL;
+	// pin5 mode: FALSE - input; TRUE - output
+	d29o_d5mode AT %Q* : BOOL := TRUE;
+	// digital i/o afe#6,3/J19
+	d6i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d6o AT %Q* : BOOL;
+	// pin6 mode: FALSE - input; TRUE - output
+	d30o_d6mode AT %Q* : BOOL := TRUE;
+	// digital i/o afe#7,2/J19
+	d7i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d7o AT %Q* : BOOL;
+	// pin7 mode: FALSE - input; TRUE - output
+	d31o_d7mode AT %Q* : BOOL := TRUE;
+	// digital i/o afe#8,1/J19
+	d8i AT %I* : BOOL;
+	// when configured as input, this field is unused
+	d8o AT %Q* : BOOL;
+	// pin8 mode: FALSE - input; TRUE - output
+	d32o_d8mode AT %Q* : BOOL := TRUE;
+END_VAR
+
+
+
+Delay(IN:=TRUE, PT:=T#1S);
+IF Delay.Q THEN
+	a1o_mode := 4;
+	LedOut:= NOT LedIn;
+	//d8o:= NOT d8i;
+	Delay(IN:=FALSE);
+END_IF;
