@@ -1,0 +1,390 @@
+diff --git a/appl/goal_ecat/00_rpc_cc/goal_appl.c b/appl/goal_ecat/00_rpc_cc/goal_appl.c
+index c37b4d0..4b22dec 100644
+--- a/appl/goal_ecat/00_rpc_cc/goal_appl.c
++++ b/appl/goal_ecat/00_rpc_cc/goal_appl.c
+@@ -29,6 +29,9 @@
+ #endif
+ #include <goal_dd.h>
+ 
++#if RIOP
++extern int riop_appl_init(void);
++#endif
+ 
+ /****************************************************************************/
+ /** Application initialization
+@@ -43,6 +46,10 @@ GOAL_STATUS_T appl_init(
+ {
+     GOAL_STATUS_T res;                          /* result */
+ 
++#if RIOP
++    riop_appl_init();
++#endif
++
+     /* initialize device detection module */
+     res = goal_ddInit();
+     if (GOAL_RES_ERR(res)) {
+@@ -65,4 +72,4 @@ GOAL_STATUS_T appl_init(
+     }
+ 
+     return res;
+-}
+\ No newline at end of file
++}
+diff --git a/plat/arch/freertos/goal_target.c b/plat/arch/freertos/goal_target.c
+index 5098e52..9253838 100644
+--- a/plat/arch/freertos/goal_target.c
++++ b/plat/arch/freertos/goal_target.c
+@@ -72,9 +72,15 @@
+ /****************************************************************************/
+ /* Local Defines */
+ /****************************************************************************/
++#if RIOP
++#define GOAL_TARGET_INIT_TASK_PRIO              (configMAX_PRIORITIES - 1) /**< FreeRTOS priority of init task */
++#define GOAL_TARGET_INIT_TASK_STACK_SIZE        (0x1000 / sizeof(StackType_t)) /**< stack size of init task (x * sizeof(StackType_t) bytes) */
++#define GOAL_TARGET_MAIN_TASK_PRIO              1 /**< (GOAL) priority of main task */
++#else
+ #define GOAL_TARGET_INIT_TASK_PRIO              0 /**< FreeRTOS priority of init task */
+ #define GOAL_TARGET_INIT_TASK_STACK_SIZE        (0x1000 / sizeof(StackType_t)) /**< stack size of init task (x * sizeof(StackType_t) bytes) */
+ #define GOAL_TARGET_MAIN_TASK_PRIO              0 /**< (GOAL) priority of main task */
++#endif
+ #ifndef GOAL_TARGET_MAIN_TASK_STACK_SIZE
+ # define GOAL_TARGET_MAIN_TASK_STACK_SIZE       (0x2000 / sizeof(StackType_t)) /**< stack size of main task (x * sizeof(StackType_t) bytes) */
+ #endif
+diff --git a/plat/board/nxp/evkmimxrt1180/goal_target_board.c b/plat/board/nxp/evkmimxrt1180/goal_target_board.c
+index 2422d1d..09c5551 100644
+--- a/plat/board/nxp/evkmimxrt1180/goal_target_board.c
++++ b/plat/board/nxp/evkmimxrt1180/goal_target_board.c
+@@ -188,7 +188,11 @@ unsigned char rpmsg_sh_mem[GOAL_BOARD_SHM_SIZE] __attribute__((section(".noinit.
+ /****************************************************************************/
+ #if GOAL_CONFIG_MEDIA_MI_NVS == 1
+ static GOAL_MA_NVS_INFO_T mInfoNvs = {          /**< NVS chip description */
++#if RIOP
++    GOAL_DRV_NVS_CHIP_MACRONIX_MX25UW6345GXDI00
++#else
+     GOAL_DRV_NVS_CHIP_WINBOND_W25Q128JWSIQ
++#endif
+ };
+ static GOAL_MI_NVS_REGION_T *pNvsRegionCm = NULL; /**< NVS region handle */
+ static GOAL_MI_NVS_REGION_LIST_T region_list[] = { /**< NVS region list */
+@@ -449,6 +453,9 @@ GOAL_STATUS_T goal_targetBoardInit(
+ #endif /* GOAL_CONFIG_TASK */
+ 
+ #if GOAL_CONFIG_TARGET_FREERTOS_TARGET_MAIN == 1
++#else
++#if RIOP /* Already done in External Main Function. */
++    BOARD_InitHardware();
+ #else
+     /* Hardware Initialization. */
+     BOARD_ConfigMPU();
+@@ -458,6 +465,7 @@ GOAL_STATUS_T goal_targetBoardInit(
+ # if GOAL_CONFIG_LOGGING == 1 && GOAL_CONFIG_LOGGING_TARGET_RAW == 1 && GOAL_CONFIG_MCTC_CC == 1
+     BOARD_InitDEBUG_UARTPins();
+ # endif
++#endif
+ #endif /* GOAL_CONFIG_TARGET_FREERTOS_TARGET_MAIN */
+ 
+ #if GOAL_CONFIG_TGT_RT1180_TRACE == 1
+@@ -1057,12 +1065,12 @@ uint32_t goal_targetGetButtons(
+ )
+ {
+     uint32_t button = 0;                        /* enabled buttons */
+-
++#if !RIOP
+     /* Check if button is active */
+     if (0 == RGPIO_PinRead(BOARD_INITPINS_USER_BUTTON_1_PERIPHERAL, BOARD_INITPINS_USER_BUTTON_1_CHANNEL)) {
+         button = GOAL_TARGET_BUTTON;
+     }
+-
++#endif
+     /* Return button bit field */
+     return button;
+ }
+@@ -1092,7 +1100,16 @@ GOAL_STATUS_T goal_targetBoardEthInit(
+                 BLK_CTRL_WAKEUPMIX->NETC_LINK_CFG[4] = BLK_CTRL_WAKEUPMIX_NETC_LINK_CFG_MII_PROT(1);
+                 break;
+ 
+-            case kNETC_SWITCH0EthPort0:
++#if RIOP
++	    case kNETC_SWITCH0EthPort0:
++            case kNETC_SWITCH0EthPort1:
++            case kNETC_SWITCH0EthPort2:
++            case kNETC_SWITCH0EthPort3:
++                res = GOAL_OK; /* Dummy init */
++                break;
++
++#else
++	    case kNETC_SWITCH0EthPort0:
+                 BOARD_InitSwtPort0Pins();
+                 BLK_CTRL_WAKEUPMIX->NETC_LINK_CFG[0] = BLK_CTRL_WAKEUPMIX_NETC_LINK_CFG_MII_PROT(1);
+                 break;
+@@ -1111,7 +1128,7 @@ GOAL_STATUS_T goal_targetBoardEthInit(
+                 BOARD_InitSwtPort3Pins();
+                 BLK_CTRL_WAKEUPMIX->NETC_LINK_CFG[3] = BLK_CTRL_WAKEUPMIX_NETC_LINK_CFG_MII_PROT(2);
+                 break;
+-
++#endif
+             default:
+                 goal_logErr("unknown port ID: %d", pPortInfo[cnt].portId);
+                 res = GOAL_ERROR;
+@@ -1299,6 +1316,9 @@ GOAL_STATUS_T goal_targetMainPreOsCb(
+     GOAL_STATUS_T res;                          /* result */
+ # endif
+ 
++#if RIOP
++    BOARD_InitHardware();
++#else
+     /* Hardware Initialization. */
+     BOARD_ConfigMPU();
+     BOARD_InitBootPins();
+@@ -1312,6 +1332,7 @@ GOAL_STATUS_T goal_targetMainPreOsCb(
+     BOARD_InitDEBUG_UARTPins();
+ #  endif /* GOAL_CONFIG_LOGGING == 1 && GOAL_CONFIG_LOGGING_TARGET_RAW == 1 */
+ # endif
++#endif
+ 
+     goal_logInfo("executed HardwareInit");
+ 
+@@ -1430,6 +1451,10 @@ static GOAL_STATUS_T goal_targetBoardMcInit(
+     }
+ #  endif
+ 
++#if RIOP
++    PRINTF("Secondary Core Started...\r\n");
++#endif
++
+ # elif GOAL_CONFIG_MCTC_AC == 1
+     UNUSEDARG(startupData);
+ #  if GOAL_BOARD_MCMGR_SYNC == 1
+diff --git a/plat/drv/nvs/goal_drv_nvs.h b/plat/drv/nvs/goal_drv_nvs.h
+index 8af385a..c296c8d 100644
+--- a/plat/drv/nvs/goal_drv_nvs.h
++++ b/plat/drv/nvs/goal_drv_nvs.h
+@@ -129,6 +129,16 @@
+     0x00000100,                                 /**< page size: 256 Byte */ \
+     GOAL_TRUE                                   /**< memory mapped read: yes */
+ 
++#if RIOP
++/**< Macronix - MX25UW6345GXDI00 */
++#define GOAL_DRV_NVS_CHIP_MACRONIX_MX25UW6345GXDI00 \
++    "Macronix - Octal 8MB",                   /**< flash name */ \
++    0x00800000,                                 /**< memory size: 8 MB */ \
++    0x00001000,                                 /**< sector size: 4 kB */ \
++    0x00000100,                                 /**< page size: 256 Byte */ \
++    GOAL_TRUE                                   /**< memory mapped read: yes */
++#endif
++
+ /**< Renesas - R5F572MNDxBD (internal data flash) */
+ #define GOAL_DRV_NVS_CHIP_RENESAS_R5F572MNDXBD_DF \
+     "Renesas - R5F572MNDxBD - DF",              /**< NVS name */ \
+diff --git a/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.c b/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.c
+index 1301e56..69576a8 100644
+--- a/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.c
++++ b/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.c
+@@ -46,6 +46,9 @@ typedef struct {
+ /****************************************************************************/
+ spi_flash_instance_t fsl_instance;
+ 
++#if RIOP /* External configuration */
++#define FLASH_OFFSET 0
++#else
+ /* 1 config, 2 chips of same type on board */
+ flexspi_device_config_t deviceconfig = {
+     .flexspiRootClk = 12000000,
+@@ -120,7 +123,7 @@ uint32_t customLUT[CUSTOM_LUT_LENGTH] = {
+     [4 * NOR_CMD_LUT_SEQ_IDX_ERASECHIP] =
+         FLEXSPI_LUT_SEQ(kFLEXSPI_Command_SDR, kFLEXSPI_1PAD, 0xC7, kFLEXSPI_Command_STOP, kFLEXSPI_1PAD, 0),
+ };
+-
++#endif
+ 
+ /****************************************************************************/
+ /* Local prototypes */
+@@ -218,9 +221,15 @@ GOAL_STATUS_T goal_drvNvsSflashFslReg(
+         pMaNvs->infoFlash.sizeErase = pInfoNvs->sizeErase;
+ 
+         /* compare the available memory according to GOAL and FSL NVS */
++#if RIOP
++        if (pInfoNvs->sizeFlash != (pHdlDrv->pSflash->deviceconfig->flashSize*1024)) {
++            goal_logWarn("configuration of GOAL and FSL sflash differs");
++        }
++#else
+         if (pInfoNvs->sizeProgram != pHdlDrv->pSflash->deviceconfig->flashSize) {
+             goal_logWarn("configuration of GOAL and FSL sflash differs");
+         }
++#endif
+         pMaNvs->infoFlash.sizeProgram = pInfoNvs->sizeProgram;
+         pMaNvs->infoFlash.flags = pInfoNvs->flags | GOAL_MA_NVS_FLAG_ERASE_REQUIRED | GOAL_MA_NVS_FLAG_MEM_READ;
+     }
+@@ -243,6 +252,8 @@ static GOAL_STATUS_T goal_drvNvsSflashFslOpen(
+ )
+ {
+     GOAL_STATUS_T res = GOAL_OK;                /* result */
++
++#if !RIOP /* External flash initialization is done as part of HW_Init() */
+     GOAL_NVS_SFLASH_FSL_T *pHdlDrv;             /* driver handle */
+     uint8_t vendorID = 0;                       /* Vendor ID */
+     status_t status;                            /* NXP return value */
+@@ -278,6 +289,7 @@ static GOAL_STATUS_T goal_drvNvsSflashFslOpen(
+         return GOAL_ERROR;
+     }
+     goal_logInfo("flash entered quad mode");
++#endif
+ 
+     return res;
+ }
+@@ -416,7 +428,11 @@ static GOAL_STATUS_T goal_drvNvsSflashFslErase(
+     /* Disable interrupts */
+     __disable_irq();
+ 
++#if RIOP
++    err = flexspi_erase_sector(pHdlDrv->pSflash->pBase, FLASH_OFFSET + offset);
++#else
+     err = flexspi_nor_flash_erase_sector(pHdlDrv->pSflash->pBase, FLASH_OFFSET + offset);
++#endif
+ 
+     /* Enable interrupts back */
+     if (!prim) {
+diff --git a/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.h b/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.h
+index 43e4bdf..512675e 100644
+--- a/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.h
++++ b/plat/drv/nvs/sflash/fsl/rt1180/nvs_sflash_fsl.h
+@@ -25,7 +25,11 @@
+ #include <goal_media/goal_ma_nvs.h>
+ #include "plat/drv/nvs/goal_drv_nvs.h"
+ 
++#if RIOP
++#include "flexspi_ops.h"
++#else
+ #include "flexspi_defaults.h"
++#endif
+ #include "fsl_flexspi.h"
+ 
+ 
+@@ -37,7 +41,11 @@
+ typedef struct {
+     FLEXSPI_Type *pBase;
+     flexspi_device_config_t *deviceconfig;
++#if RIOP
++    const uint32_t *customLUT;
++#else
+     uint32_t *customLUT;
++#endif
+ } spi_flash_instance_t;
+ 
+ 
+diff --git a/protos/ethercat/drivers/board/nxp/evkmimxrt1180/goal_target_esc.c b/protos/ethercat/drivers/board/nxp/evkmimxrt1180/goal_target_esc.c
+index 2750e23..8553f9d 100644
+--- a/protos/ethercat/drivers/board/nxp/evkmimxrt1180/goal_target_esc.c
++++ b/protos/ethercat/drivers/board/nxp/evkmimxrt1180/goal_target_esc.c
+@@ -70,6 +70,7 @@ static GOAL_TASK_T *mpTskEcatDc = NULL;         /**< EtherCAT DC interrupt */
+ #endif
+ static GOAL_TIMER_T *mpLedTmr;                  /**< timer for LED indication */
+ 
++#if !RIOP
+ static GOAL_TGT_PHY_CFG_T mPortCfg[] = {
+     {
+         .phyAddr = 0,
+@@ -82,6 +83,7 @@ static GOAL_TGT_PHY_CFG_T mPortCfg[] = {
+         .phyResetPin = 13,
+     },
+ };
++#endif
+ 
+ 
+ /****************************************************************************/
+@@ -95,9 +97,11 @@ void XBAR1_CH0_CH1_IRQHandler(
+     void
+ );
+ 
++#if !RIOP
+ static void goal_targetEscPhyLinkLedInit(
+     EC_INSTANCE_T *pEcat                        /**< EtherCAT instance data */
+ );
++#endif
+ 
+ #ifdef EC_CONFIG_PDI_INTERRUPT
+ static GOAL_STATUS_T goal_targetEscIsrInit(
+@@ -135,10 +139,13 @@ EC_RET_T ec_escHwInit(
+ )
+ {
+     GOAL_STATUS_T res = GOAL_OK;                /* result */
++#if !RIOP
+     rgpio_pin_config_t pinConfig;               /* GPIO configuration */
+     uint32_t cnt;                               /* loop counter */
+     uint32_t maxCnt;                            /* counter limit */
++#endif
+ 
++#if !RIOP /* Already done in external function via BOARD_InitHardware() */
+     /* re-configure board pin muxing to access peripheries */
+     BOARD_InitEcatPins();
+     BOARD_InitEcatMdioPins();
+@@ -177,14 +184,17 @@ EC_RET_T ec_escHwInit(
+         RGPIO_PinWrite(mPortCfg[cnt].pPhyResetGpioBase, mPortCfg[cnt].phyResetPin, 1);
+     }
+     SDK_DelayAtLeastUs(90000, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
++#endif
+ 
+     /* set start address of ESC memory */
+     pEcat->esc.pBase = (UNSIGNED8 *) ECAT;
+ 
++#if !RIOP
+     /* TODO: control LEDs manually as the ESC would permanently detect a changed
+      * dlState if Link-LED is controlled by the ESC, caused by flickering
+      */
+     goal_targetEscPhyLinkLedInit(pEcat);
++#endif
+ 
+     /* initialize run/err LEDs */
+     res = goal_timerCreate(&mpLedTmr, GOAL_TIMER_LOW);
+@@ -385,6 +395,7 @@ void ec_escBspWriteGen(
+ }
+ 
+ 
++#if !RIOP
+ /****************************************************************************/
+ /** Configure PHY link LED behavior
+  *
+@@ -447,7 +458,7 @@ static void goal_targetEscPhyLinkLedInit(
+         goal_logErr("error configuring customized LED behavior");
+     }
+ }
+-
++#endif
+ 
+ #ifdef EC_CONFIG_PDI_INTERRUPT
+ /****************************************************************************/
+@@ -462,6 +473,7 @@ static GOAL_STATUS_T goal_targetEscIsrInit(
+ {
+     GOAL_STATUS_T res = GOAL_OK;                /* result */
+ # if defined(EC_CONFIG_DC) && !defined(EC_CONFIG_SYNC0_MAPPED_TO_PDI_INTR)
++#if !RIOP /* Already done in external function via BOARD_InitHardware() */
+     xbar_control_config_t xbaraConfig;          /* MUX configuration */
+     status_t resXbar;                           /* status */
+ 
+@@ -489,6 +501,7 @@ static GOAL_STATUS_T goal_targetEscIsrInit(
+     /* set pulse width to 3 cycle plus 1 for channel 0/1 */
+     GOAL_MASK_SET(BLK_CTRL_WAKEUPMIX->XBAR_TRIG_SYNC_CTRL2, PULSE_WIDTH0_3);
+     GOAL_MASK_SET(BLK_CTRL_WAKEUPMIX->XBAR_TRIG_SYNC_CTRL2, PULSE_WIDTH1_3);
++#endif
+ 
+ #  if GOAL_CONFIG_TASK == 1
+     /* create and start ESC_DC task */
+@@ -660,14 +673,18 @@ static void goal_targetEscTimer(
+     void *pArg                                  /**< timer argument */
+ )
+ {
++#if !RIOP
+     EC_INSTANCE_T *pEcat = NULL;                /* EtherCAT handle */
++#endif
+ 
+     if (NULL == pArg) {
+         return;
+     }
+ 
++#if !RIOP
+     pEcat = (EC_INSTANCE_T *) pArg;
+ 
+     RGPIO_PinWrite(BOARD_INITECATSTATELEDPINS_ECAT_LED_RUN_PERIPHERAL, BOARD_INITECATSTATELEDPINS_ECAT_LED_RUN_GPIO_PIN, (pEcat->led.bLedRun) ? 1U : 0U);
+     RGPIO_PinWrite(BOARD_INITECATSTATELEDPINS_ECAT_LED_ERR_PERIPHERAL, BOARD_INITECATSTATELEDPINS_ECAT_LED_ERR_GPIO_PIN, (pEcat->led.bLedError) ? 1U : 0U);
++#endif
+ }

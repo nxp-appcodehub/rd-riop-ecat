@@ -1,0 +1,16 @@
+{
+  "version": "25.3",
+  "toolchainPath": "C:/Users/nxg16113/.mcuxpressotools/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi",
+  "linkedProjects": [],
+  "trustZoneType": "none",
+  "multicoreType": "none",
+  "projectType": "sdk-v2-freestanding",
+  "projectName": "riop_ECAT_M7FOLLOWER",
+  "sdk": {
+    "version": "25.9.0",
+    "path": "c:\\NXP\\sdk\\mcuxsdk",
+    "boardId": "evkmimxrt1180",
+    "deviceId": "MIMXRT1189xxxxx",
+    "coreId": "cm7"
+  }
+}

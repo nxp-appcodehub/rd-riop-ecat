@@ -18,7 +18,7 @@ This application showcases the analog and digital I/O features supported by the 
     <li>Resistance Calibration</li>
 </ul><br />
 
-This README contains simplified information. Please, refer to the <a href="">User Guide</a> for comprehensive instructions on what tools to download, how to configure the setup and run the application.
+This README contains simplified information. Please, refer to the <a href="https://www.nxp.com/RIOP">User Guide</a> for comprehensive instructions on what tools to download, how to configure the setup and run the application.
 
 #### Boards: Custom Board
 #### Categories: Sensor, Industrial, RTOS, Analog Front End
@@ -31,33 +31,31 @@ This README contains simplified information. Please, refer to the <a href="">Use
 3. [Setup](#step3)
 4. [Support](#step4)
 5. [Release Notes](#step5)
+5. [Known Issues](#step6)
 
 ## 1. Software<a name="step1"></a>
-The application is supports MCUXpresso IDE 24.12 or newer and VS Code with the MCUXpresso for VS Code extension version 25.3.72 or newer.
+The application supports VS Code with the MCUXpresso for VS Code extension version 25.03 or newer.
 
 ### IDE Download:
 <ul>
-    <li><a href="https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-integrated-development-environment-ide:MCUXpresso-IDE">MCUXpresso IDE 24.12+</a></li>
     <li><a href="https://code.visualstudio.com/">VS Code IDE</a></li>
-    <li><a href="https://marketplace.visualstudio.com/items?itemName=NXPSemiconductors.mcuxpresso">MCUXpresso for VS Code extension 25.3.72+</a></li>
+    <li><a href="https://marketplace.visualstudio.com/items?itemName=NXPSemiconductors.mcuxpresso">MCUXpresso for VS Code extension 25.03+</a></li>
 </ul>
 
-Additional SW tools are needed to build, flash and use the application. These are the SEC Tool version 10 or newer (newer versions are numbered in a new format, e.g. 25.03.01) and FreeMASTER 3.2 or newer and the SSC and TwinCAT tools from Beckhoff.
+Additional SW tools are needed to build, flash and use the application. These are the SEC Tool version 25.09 or newer and FreeMASTER 3.2 or newer and TwinCAT tool from Beckhoff.
 
 ### Tools Download:
 <ul>
-    <li><a href="https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-secure-provisioning-tool:MCUXPRESSO-SECURE-PROVISIONING">Secure Provisioning Tool v10+</a></li>
+    <li><a href="https://www.nxp.com/design/design-center/software/development-software/mcuxpresso-software-and-tools-/mcuxpresso-secure-provisioning-tool:MCUXPRESSO-SECURE-PROVISIONING">Secure Provisioning Tool v25.09+</a></li>
     <li><a href="https://www.nxp.com/design/design-center/software/development-software/freemaster-run-time-debugging-tool:FREEMASTER">FreeMASTER 3.2+</a></li>
-    <li><a href="https://www.ethercat.org/en/downloads/downloads_01DCC32A10294F2EA866F7E46FB0285F.htm">SSC Tool</a></li>
     <li><a href="https://www.beckhoff.com/en-gb/support/download-finder/search-result/?c-1=26782567">TwinCAT 3</a></li>
 </ul>
 
-MCUxpresso SDK MIMXRT1189xxxxx 2.16.000 is required to enable project importing to either one of the supported IDEs.
+MCUxpresso SDK MIMXRT1189xxxxx 25.09.00 is required to enable project importing to VS Code.
 
 ### SDK Download:
 <ul>
-    <li><a href="https://mcuxpresso.nxp.com/en">SDK for MCUXpresso IDE</a></li>
-    <li>When using VS Code, download the MCUX 2.16.000 repository using Import Repository feature in the MCUXpresso for VS Code extension</li>
+    <li>When using VS Code, download the MCUX 25.09.00 repository using Import Repository feature in the MCUXpresso for VS Code extension</li>
 </ul>
 
 ## 2. Hardware<a name="step2"></a>
@@ -66,12 +64,13 @@ MCUxpresso SDK MIMXRT1189xxxxx 2.16.000 is required to enable project importing 
     <li>Assembled and tested evaluation board in an antistatic bag</li>
     <li>USB-micro cable</li>
     <li>24 V Power adapter</li>
+    <li>3 colored wires</li>
 </ul>
 
 ### The application requires additional hardware components:
 <b>Mandatory:</b>
 <ul>
-    <li>PC with Windows 10</li>
+    <li>PC with Windows 10 or newer</li>
     <li>Ethernet cable</li>
 </ul>
 
@@ -128,7 +127,16 @@ Questions regarding the content/correctness of this example can be entered as Is
 ## 5. Release Notes<a name="step5"></a>
 | Version | Description / Update                           | Date                        |
 |:-------:|------------------------------------------------|----------------------------:|
-| 1.0.0     | Initial release on Application Code Hub        | June 15<sup>th</sup> 2025 |
+| 1.0.0   | Initial release on Application Code Hub        | June 15<sup>th</sup> 2025   |
+| 1.5.0   | SDK 25.09.00 based release with GOAL           | Dec 18<sup>th</sup> 2025    |
+
+## 6. Known Issues<a name="step6"></a>
+
+<ul>
+    <li>There are known issues with TwinCAT on Windows 11. For more information and support, please reach out to Beckhoff.</li>
+    <li>The AFE digital I/O pins are floating and can toggle between TRUE and FALSE if a wire is connected to one of them and left floating on the other end.</li>
+    <li>The AFE digital input pins change from TRUE to FALSE with a latency of about 3 seconds.</li>
+</ul>
 
 ## Licensing
 
@@ -138,11 +146,5 @@ LA_OPT_Online Code Hosting NXP_Software_License - v1.4 May 2025
 ## Origin
 <ul>
     <li>NXP (Proprietary)</li>
-    <li>[NXP SDK (BSD-3-Clause)](BSD 3-Clause.txt)</li>
-    <li>FreeRTOS-Kernel 11.0.1 - Amazon (MIT) - https://github.com/FreeRTOS/FreeRTOS-Kernel?tab=MIT-1-ov-file#readme</li>
-    <li>CMSIS 5.9.0 - ARM (Apache-2.0) - https://github.com/ARM-software/CMSIS_5/releases/tag/5.9.0</li>
-    <li>RPMsg-Lite 5.1.0 - Mentor Graphics Corporation & community contributors (BSD-3-Clause) - https://github.com/NXPmicro/rpmsg-lite</li>
-    <li>MCMGR 4.1.4 - NXP (BSD-3-Clause)</li>
-    <li>virtio - Bryan Venteicher (BSD-2-Clause)</li>
-    <li>virtio_ring - Rusty Russell IBM Corporation 2007 (BSD-3-Clause)</li>
+    <li>[NAFE13388 Drivers - NXP (BSD-3-Clause) - riop_ECAT/M7FOLLOWER/source/NAFE_hw](BSD 3-Clause.txt)</li>
 </ul>

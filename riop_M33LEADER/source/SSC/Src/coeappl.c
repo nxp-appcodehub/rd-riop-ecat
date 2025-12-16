@@ -1,1 +1,0 @@
-#error "Please, follow the instructions in the User Guide to generate the SSC source code using the Beckhoff SSC tool."

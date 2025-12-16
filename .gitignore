@@ -142,3 +142,9 @@ Thumbs.db
 # Launch Files
 *.launch
 riop_M7FOLLOWER/drivers/NAFE_hw.zip
+
+*.swp
+tags
+cscope.out
+.build
+goal
